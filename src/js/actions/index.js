@@ -1,10 +1,9 @@
 'use strict';
 
-const obj = require('iblokz/common/obj');
+const {arr, obj} = require('iblokz-data');
 
 // initial
 const initial = {
-	audio: false,
 	mic: false,
 	lastAffected: '0',
 	baseLength: 0,
@@ -18,7 +17,13 @@ const initial = {
 };
 
 // actions
-const toggle = path => state => obj.patch(state, path, !obj.sub(state, path));
+
+const set = (key, value) => state => obj.patch(state, key, value);
+const toggle = key => state => obj.patch(state, key, !obj.sub(state, key));
+const arrToggle = (key, value) => state =>
+	obj.patch(state, key,
+		arr.toggle(obj.sub(state, key), value)
+	);
 
 const change = (channel, param, value) => state => Object.assign(
 	obj.patch(state, ['channels', channel, param], value),
@@ -31,7 +36,7 @@ const playRec = channel => state => Object.assign(obj.patch(state, ['channels', 
 	layers: ['record', 'overdub'].indexOf(state.channels[channel].process) > -1
 		? state.channels[channel].layers + 1
 		: state.channels[channel].layers,
-	process: (state.audio)
+	process: (state.audio.on)
 		? (state.channels[channel].process === 'empty') ? 'record'
 			: (state.channels[channel].process === 'play')
 				? 'overdub' : 'play'
@@ -77,12 +82,17 @@ const clear = channel => state => Object.assign(obj.patch(state, ['channels', ch
 
 const setBaseLength = baseLength => state => Object.assign({}, state, {baseLength});
 
+const ping = () => state => state;
+
 module.exports = {
 	initial,
+	set,
 	toggle,
+	arrToggle,
 	change,
 	playRec,
 	stop,
 	clear,
-	setBaseLength
+	setBaseLength,
+	ping
 };

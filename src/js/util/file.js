@@ -4,8 +4,7 @@ const Rx = require('rx');
 const $ = Rx.Observable;
 const fileSaver = require('file-saver');
 const jsZip = require("jszip");
-const fn = require("iblokz/common/fn");
-const obj = require("iblokz/common/obj");
+const {arr, obj, fn} = require('iblokz-data');
 
 const load = (file, readAs = 'text') => $.create(stream => {
 	const fr = new FileReader();
@@ -22,7 +21,7 @@ const load = (file, readAs = 'text') => $.create(stream => {
 	((typeof file === 'string')
 		? $.fromPromise(fetch(file)).flatMap(res => res.blob())
 		: $.just(file))
-		.subscribe(f => (console.log(f), fn.switch(readAs, {
+		.subscribe(f => (console.log(f), obj.switch(readAs, {
 			arrayBuffer: f => fr.readAsArrayBuffer(f),
 			default: f => fr.readAsText(f)
 		})(f)));
